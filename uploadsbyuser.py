@@ -13,7 +13,7 @@ if 'QUERY_STRING' in os.environ:
 	QS = os.environ['QUERY_STRING']
 	qs = cgi.parse_qs(QS)
 	try:
-		username = qs['user'][0]
+		username = qs['user'][0].replace('_', ' ')
 	except:
 		print 'nouser'
 		sys.exit(0)
