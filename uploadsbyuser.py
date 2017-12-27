@@ -19,7 +19,7 @@ if 'QUERY_STRING' in os.environ:
 		sys.exit(0)
 else:
 	print 'nouser'
-	sys.exut(0)
+	sys.exit(0)
 
 ##### PROGRAM ####
 
