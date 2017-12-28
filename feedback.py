@@ -69,7 +69,7 @@ if 'QUERY_STRING' in os.environ:
         except:
 		response = {
 			'status': 'error',
-			'errorcode': 'mustpassparams'
+			'errorCode': 'mustpassparams'
 		}
 		print jsonify(response)
                 sys.exit(0)
@@ -77,16 +77,16 @@ if 'QUERY_STRING' in os.environ:
 		fetch = qs['fetch'][0].split('|')
 	except:
 		fetch = [
-			'thanksreceived',
-			'imagesfeatured',
-			'imagesnumofusings',
-			'imagesused',
-			'imageseditedelse',
+			'thanksReceived',
+			'featuredImages',
+			'articlesUsingImages',
+			'uniqueUsedImages',
+			'imagesEditedBySomeoneElse',
 		]
 else:
 	response = {
 		'status': 'error',
-		'errorcode': 'mustpassparams'
+		'errorCode': 'mustpassparams'
 	}
 	print jsonify(response)
         sys.exit(0)
@@ -95,15 +95,15 @@ response = {
 	'status': 'ok',
 	'user': user,
 }
-if 'thanksreceived' in fetch:
-	response['thanksreceived'] = numthanks(user)
-if 'imagesfeatured' in fetch:
-	response['imagesfeatured'] = numfeatured(user)
-if 'imagesnumofusings' in fetch:
-	response['imagesnumofusings'] = numofusings(user)
-if 'imagesused' in fetch:
-	response['imagesused'] = numused(user)
-if 'imageseditedelse' in fetch:
-	response['imageseditedelse'] = numeditedelse(user)
+if 'thanksReceived' in fetch:
+	response['thanksReceived'] = numthanks(user)
+if 'featuredImages' in fetch:
+	response['featuredImages'] = numfeatured(user)
+if 'articlesUsingImages' in fetch:
+	response['articlesUsingImages'] = numofusings(user)
+if 'uniqueUsedImages' in fetch:
+	response['uniqueUsedImages'] = numused(user)
+if 'imagesEditedBySomeoneElse' in fetch:
+	response['imagesEditedBySomeoneElse'] = numeditedelse(user)
 
 print jsonify(response)
