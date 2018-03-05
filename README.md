@@ -15,7 +15,7 @@ This script return a single number representing number of total uploads of certa
 
 ## feedback.py
 
-This script returns various numbers about certain given numbers, including number of thanks they received or number of usages of their files at projects of the Wikimedia Foundation. 
+This script returns various numbers about certain given user, like number of thanks they received or number of usages of their files at projects of the Wikimedia Foundation. 
 
 ### Overview
 * HTTP method: GET
