@@ -3,7 +3,7 @@
 import os
 import cgi
 import sys
-import toolforge
+from wmflabs import db
 
 #Print header
 print ('Content-type: text/html\n')
@@ -23,7 +23,7 @@ else:
 
 ##### PROGRAM ####
 
-conn = toolforge.connect('commonswiki')
+conn = db.connect('commonswiki')
 cur = conn.cursor()
 with cur:
 	sql = 'select count(*) from filearchive where fa_user=(select user_id from user where user_name="' + username + '");'
