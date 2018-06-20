@@ -11,16 +11,9 @@ conn = db.connect('commonswiki')
 def jsonify(response):
 	return json.dumps(response)
 
-def articlesUsingImages(username):
+def thanksReceived(username):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
-		cur.execute(sql)
-		data = cur.fetchall()
-	return data[0][0]
-
-def uniqueUsedImages(username):
-	with conn.cursor() as cur:
-		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
+		sql = 'select count(*) from logging_logindex where log_type="thanks" and log_title="%s";' % username.replace(' ', '_')
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
@@ -43,9 +36,16 @@ def featuredImages(username):
 			response[award] = 0
 	return response
 
-def thanksReceived(username):
+def articlesUsingImages(username):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from logging_logindex where log_type="thanks" and log_title="%s";' % username.replace(' ', '_')
+		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
+		cur.execute(sql)
+		data = cur.fetchall()
+	return data[0][0]
+
+def uniqueUsedImages(username):
+	with conn.cursor() as cur:
+		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
