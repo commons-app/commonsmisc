@@ -59,7 +59,7 @@ def numeditedelse(username):
 
 def deletedUploads(username):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from filearchive where fa_user=(select user_id from user where user_name="' + username + '");'
+		sql = 'select count(*) from filearchive where fa_user_text="' + username + '";'
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
