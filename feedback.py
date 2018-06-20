@@ -57,6 +57,13 @@ def numeditedelse(username):
 		data = cur.fetchall()
 	return len(data)
 
+def deletedUploads(username):
+	with conn.cursor() as cur:
+		sql = 'select count(*) from filearchive where fa_user=(select user_id from user where user_name="' + username + '");'
+		cur.execute(sql)
+		data = cur.fetchall()
+	return data[0][0]
+
 #Print header
 print 'Content-type: application/json\n'
 
@@ -82,6 +89,7 @@ if 'QUERY_STRING' in os.environ:
 			'articlesUsingImages',
 			'uniqueUsedImages',
 			'imagesEditedBySomeoneElse',
+			'deletedUploads',
 		]
 else:
 	response = {
@@ -105,5 +113,7 @@ if 'uniqueUsedImages' in fetch:
 	response['uniqueUsedImages'] = numused(user)
 if 'imagesEditedBySomeoneElse' in fetch:
 	response['imagesEditedBySomeoneElse'] = numeditedelse(user)
+if 'deletedUploads' in fetch:
+	response['deletedUploads'] = deletedUploads(user)
 
 print jsonify(response)
