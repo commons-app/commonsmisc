@@ -11,21 +11,21 @@ conn = db.connect('commonswiki')
 def jsonify(response):
 	return json.dumps(response)
 
-def numofusings(username):
+def articlesUsingImages(username):
 	with conn.cursor() as cur:
 		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def numused(username):
+def uniqueUsedImages(username):
 	with conn.cursor() as cur:
 		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def numfeatured(username):
+def featuredImages(username):
 	awards = ['Featured_pictures_on_Wikimedia_Commons', 'Quality_images']
 	sqlins = []
 	for award in awards:
@@ -43,14 +43,14 @@ def numfeatured(username):
 			response[award] = 0
 	return response
 
-def numthanks(username):
+def thanksReceived(username):
 	with conn.cursor() as cur:
 		sql = 'select count(*) from logging_logindex where log_type="thanks" and log_title="%s";' % username.replace(' ', '_')
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def numeditedelse(username):
+def imagesEditedBySomeoneElse(username):
 	with conn.cursor() as cur:
 		sql = 'select count(*) from revision where rev_page in (select log_page from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s")) and rev_user!=(select user_id from user where user_name="%s") group by rev_page having count(*)>1' % (username, username)
 		cur.execute(sql)
@@ -104,15 +104,15 @@ response = {
 	'user': user,
 }
 if 'thanksReceived' in fetch:
-	response['thanksReceived'] = numthanks(user)
+	response['thanksReceived'] = thanksReceived(user)
 if 'featuredImages' in fetch:
-	response['featuredImages'] = numfeatured(user)
+	response['featuredImages'] = featuredImages(user)
 if 'articlesUsingImages' in fetch:
-	response['articlesUsingImages'] = numofusings(user)
+	response['articlesUsingImages'] = articlesUsingImages(user)
 if 'uniqueUsedImages' in fetch:
-	response['uniqueUsedImages'] = numused(user)
+	response['uniqueUsedImages'] = uniqueUsedImages(user)
 if 'imagesEditedBySomeoneElse' in fetch:
-	response['imagesEditedBySomeoneElse'] = numeditedelse(user)
+	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(user)
 if 'deletedUploads' in fetch:
 	response['deletedUploads'] = deletedUploads(user)
 
