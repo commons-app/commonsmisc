@@ -65,7 +65,7 @@ def deletedUploads(username):
 	return data[0][0]
 
 #Print header
-print 'Content-type: application/json\n'
+print 'Content-type: application/json'
 
 # Fetch params
 if 'QUERY_STRING' in os.environ:
@@ -78,6 +78,7 @@ if 'QUERY_STRING' in os.environ:
 			'status': 'error',
 			'errorCode': 'mustpassparams'
 		}
+		print "Status: 400 Bad Request\n"
 		print jsonify(response)
                 sys.exit(0)
 	try:
@@ -96,6 +97,7 @@ else:
 		'status': 'error',
 		'errorCode': 'mustpassparams'
 	}
+	print "Status: 400 Bad Request\n"
 	print jsonify(response)
         sys.exit(0)
 
@@ -116,4 +118,5 @@ if 'imagesEditedBySomeoneElse' in fetch:
 if 'deletedUploads' in fetch:
 	response['deletedUploads'] = deletedUploads(user)
 
+print
 print jsonify(response)
