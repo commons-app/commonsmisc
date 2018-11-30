@@ -36,6 +36,13 @@ def featuredImages(username):
 			response[award] = 0
 	return response
 
+def articlesUsingAndUniqueUsedImages(username):
+    with conn.cursor() as cur:
+        sql = 'select count(*) as articlesUsing, count(distinct gil_to) as uniqueUsed from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
+        cur.execute(sql)
+        data = cur.fetchall()
+    return data[0][0], data[0][1]
+
 def articlesUsingImages(username):
 	with conn.cursor() as cur:
 		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
@@ -107,10 +114,15 @@ if 'thanksReceived' in fetch:
 	response['thanksReceived'] = thanksReceived(user)
 if 'featuredImages' in fetch:
 	response['featuredImages'] = featuredImages(user)
-if 'articlesUsingImages' in fetch:
-	response['articlesUsingImages'] = articlesUsingImages(user)
-if 'uniqueUsedImages' in fetch:
-	response['uniqueUsedImages'] = uniqueUsedImages(user)
+if 'articlesUsingImages' in fetch and 'uniqueUsedImages' in fetch:
+    resp = articlesUsingAndUniqueUsedImages(user)
+    response['articlesUsingImages'] = resp[0]
+    response['uniqueUsedImages'] = resp[1]
+else:
+    if 'articlesUsingImages' in fetch:
+        response['articlesUsingImages'] = articlesUsingImages(user)
+    if 'uniqueUsedImages' in fetch:
+        response['uniqueUsedImages'] = uniqueUsedImages(user)
 if 'imagesEditedBySomeoneElse' in fetch:
 	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(user)
 if 'deletedUploads' in fetch:
