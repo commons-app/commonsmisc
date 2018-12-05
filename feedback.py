@@ -76,14 +76,13 @@ def getLogTitleAndPage(userId):
 		sql = 'select log_title, log_page from logging_userindex where log_type="upload" and log_user=%d;' % userId
 		cur.execute(sql)
 		data = cur.fetchall()
-	counter = 0
 	logTitlesSqlIns = []
 	logPagesSqlIns = []
 	for row in data:
 		logTitlesSqlIns.append('"' + row[0] + '"')
-		logPagesSqlIns.append('"' + row[1] + '"')
-		counter = counter + 1
-
+		if row[1]!="":
+			logPagesSqlIns.append('"' + row[1] + '"')
+	
 	logTitlesSqlIn = ", ".join(logTitlesSqlIns)
 	logPagesSqlIn = ", ".join(logPagesSqlIns)
 	return logTitlesSqlIn, logPagesSqlIn
