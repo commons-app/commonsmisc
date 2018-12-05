@@ -18,14 +18,14 @@ def thanksReceived(username):
 		data = cur.fetchall()
 	return data[0][0]
 
-def featuredImages(username):
+def featuredImages(userId):
 	awards = ['Featured_pictures_on_Wikimedia_Commons', 'Quality_images']
 	sqlins = []
 	for award in awards:
 		sqlins.append('"' + award + '"')
 	sqlin = ", ".join(sqlins)
 	with conn.cursor() as cur:
-		sql = 'select count(cl_from), cl_to from categorylinks where cl_to in (%s) and cl_type="file" and cl_from in (select log_page from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s")) group by cl_to;' % (sqlin, username)
+		sql = 'select count(cl_from), cl_to from categorylinks where cl_to in (%s) and cl_type="file" and cl_from in (select log_page from logging_userindex where log_type="upload" and log_user=%d) group by cl_to;' % (sqlin, userId)
 		cur.execute(sql)
 		data = cur.fetchall()
 	response = {}
@@ -36,23 +36,23 @@ def featuredImages(username):
 			response[award] = 0
 	return response
 
-def articlesUsingImages(username):
+def articlesUsingImages(userId):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
+		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=%d);' % userId
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def uniqueUsedImages(username):
+def uniqueUsedImages(userId):
 	with conn.cursor() as cur:
-		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s"));' % username
+		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=%d);' % userId
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def imagesEditedBySomeoneElse(username):
+def imagesEditedBySomeoneElse(userId):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from revision where rev_page in (select log_page from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="%s")) and rev_user!=(select user_id from user where user_name="%s") group by rev_page having count(*)>1' % (username, username)
+		sql = 'select count(*) from revision where rev_page in (select log_page from logging_userindex where log_type="upload" and log_user=%d) and rev_user!=%d group by rev_page having count(*)>1' % (userId, userId)
 		cur.execute(sql)
 		data = cur.fetchall()
 	return len(data)
@@ -64,8 +64,15 @@ def deletedUploads(username):
 		data = cur.fetchall()
 	return data[0][0]
 
+def getUserId(username):
+    	with conn.cursor() as cur:
+		sql = 'select user_id from user where user_name="%s";' % username
+		cur.execute(sql)
+		data = cur.fetchall()
+	return data[0][0]
+
 #Print header
-print 'Content-type: application/json\n'
+print 'Content-type: application/json'
 
 # Fetch params
 if 'QUERY_STRING' in os.environ:
@@ -78,6 +85,7 @@ if 'QUERY_STRING' in os.environ:
 			'status': 'error',
 			'errorCode': 'mustpassparams'
 		}
+		print "Status: 400 Bad Request\n"
 		print jsonify(response)
                 sys.exit(0)
 	try:
@@ -96,6 +104,7 @@ else:
 		'status': 'error',
 		'errorCode': 'mustpassparams'
 	}
+	print "Status: 400 Bad Request\n"
 	print jsonify(response)
         sys.exit(0)
 
@@ -103,17 +112,21 @@ response = {
 	'status': 'ok',
 	'user': user,
 }
+
+userid = getUserId(user)
+
 if 'thanksReceived' in fetch:
 	response['thanksReceived'] = thanksReceived(user)
 if 'featuredImages' in fetch:
-	response['featuredImages'] = featuredImages(user)
+	response['featuredImages'] = featuredImages(userid)
 if 'articlesUsingImages' in fetch:
-	response['articlesUsingImages'] = articlesUsingImages(user)
+	response['articlesUsingImages'] = articlesUsingImages(userid)
 if 'uniqueUsedImages' in fetch:
-	response['uniqueUsedImages'] = uniqueUsedImages(user)
+	response['uniqueUsedImages'] = uniqueUsedImages(userid)
 if 'imagesEditedBySomeoneElse' in fetch:
-	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(user)
+	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(userid)
 if 'deletedUploads' in fetch:
 	response['deletedUploads'] = deletedUploads(user)
 
+print
 print jsonify(response)
