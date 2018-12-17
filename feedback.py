@@ -36,23 +36,23 @@ def featuredImages(userId):
 			response[award] = 0
 	return response
 
-def articlesUsingImages(userId):
+def articlesUsingImages(logTitleSqlIn):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=%d);' % userId
+		sql = 'select count(*) from globalimagelinks where gil_to in (%s);' % logTitleSqlIn
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def uniqueUsedImages(userId):
+def uniqueUsedImages(logTitleSqlIn):
 	with conn.cursor() as cur:
-		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=%d);' % userId
+		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (%s);' % logTitleSqlIn
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def imagesEditedBySomeoneElse(userId):
+def imagesEditedBySomeoneElse(userId, logPageSqlIn):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from revision where rev_page in (select log_page from logging_userindex where log_type="upload" and log_user=%d) and rev_user!=%d group by rev_page having count(*)>1' % (userId, userId)
+		sql = 'select count(*) from revision where rev_page in (%s) and rev_user!=%d group by rev_page having count(*)>1' % (logPageSqlIn, userId)
 		cur.execute(sql)
 		data = cur.fetchall()
 	return len(data)
@@ -70,6 +70,22 @@ def getUserId(username):
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
+
+def getLogTitleAndPage(userId):
+	with conn.cursor() as cur:
+		sql = 'select log_title, log_page from logging_userindex where log_type="upload" and log_user=%d;' % userId
+		cur.execute(sql)
+		data = cur.fetchall()
+	logTitlesSqlIns = []
+	logPagesSqlIns = []
+	for row in data:
+		logTitlesSqlIns.append('"' + row[0] + '"')
+		if row[1]!="":
+			logPagesSqlIns.append('"' + row[1] + '"')
+	
+	logTitlesSqlIn = ", ".join(logTitlesSqlIns)
+	logPagesSqlIn = ", ".join(logPagesSqlIns)
+	return logTitlesSqlIn, logPagesSqlIn
 
 #Print header
 print 'Content-type: application/json'
@@ -114,17 +130,19 @@ response = {
 }
 
 userid = getUserId(user)
+if 'articlesUsingImages' in fetch or 'uniqueUsedImages' in fetch or 'imagesEditedBySomeoneElse' in fetch:
+	logTitleSqlIn, logPageSqlIn = getLogTitleAndPage(userid)
 
 if 'thanksReceived' in fetch:
 	response['thanksReceived'] = thanksReceived(user)
 if 'featuredImages' in fetch:
 	response['featuredImages'] = featuredImages(userid)
 if 'articlesUsingImages' in fetch:
-	response['articlesUsingImages'] = articlesUsingImages(userid)
+	response['articlesUsingImages'] = articlesUsingImages(logTitleSqlIn)
 if 'uniqueUsedImages' in fetch:
-	response['uniqueUsedImages'] = uniqueUsedImages(userid)
+	response['uniqueUsedImages'] = uniqueUsedImages(logTitleSqlIn)
 if 'imagesEditedBySomeoneElse' in fetch:
-	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(userid)
+	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(userid, logPageSqlIn)
 if 'deletedUploads' in fetch:
 	response['deletedUploads'] = deletedUploads(user)
 
