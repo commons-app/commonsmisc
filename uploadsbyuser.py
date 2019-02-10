@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import cgi
@@ -6,7 +6,7 @@ import sys
 from wmflabs import db
 
 #Print header
-print 'Content-type: text/html\n'
+print('Content-type: text/html\n')
 
 # Fetch params
 if 'QUERY_STRING' in os.environ:
@@ -15,10 +15,10 @@ if 'QUERY_STRING' in os.environ:
 	try:
 		username = qs['user'][0].replace('_', ' ')
 	except:
-		print 'nouser'
+		print('nouser')
 		sys.exit(0)
 else:
-	print 'nouser'
+	print('nouser')
 	sys.exit(0)
 
 ##### PROGRAM ####
@@ -31,4 +31,4 @@ with cur:
 	data = cur.fetchall()
 
 result = data[0][0]
-print result
+print(result)
