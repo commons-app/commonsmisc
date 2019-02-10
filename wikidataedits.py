@@ -12,6 +12,7 @@ def jsonify(response):
 
 #Print header
 print 'Content-type: application/json'
+print
 
 # Fetch params
 if 'QUERY_STRING' in os.environ:
@@ -20,10 +21,10 @@ if 'QUERY_STRING' in os.environ:
 	try:
 		username = qs['user'][0].replace('_', ' ')
 	except:
-		print 'nouser'
+		print '{"error": "nouser"}'
 		sys.exit(0)
 else:
-	print 'nouser'
+	print '{"error": "nouser"}'
 	sys.exit(0)
 
 ##### PROGRAM ####
@@ -41,5 +42,4 @@ response = {
     'edits': result
 }
 
-print
 print jsonify(response)
