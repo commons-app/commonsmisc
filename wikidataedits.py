@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+#-*- coding: utf-8 -*-
 
 import os
 import cgi
+import json
 import sys
 from wmflabs import db
 
@@ -31,4 +33,5 @@ with cur:
 	data = cur.fetchall()
 
 result = data[0][0]
-print {"edits": result}
+response = {"edits": result}
+print jsonify(response)
