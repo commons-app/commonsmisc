@@ -7,6 +7,9 @@ import json
 import sys
 from wmflabs import db
 
+def jsonify(response):
+	return json.dumps(response)
+
 #Print header
 print 'Content-type: application/json'
 
@@ -33,5 +36,10 @@ with cur:
 	data = cur.fetchall()
 
 result = data[0][0]
-response = {"edits": result}
+
+response = {
+    'edits': result
+}
+
+print
 print jsonify(response)
