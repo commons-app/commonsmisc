@@ -30,7 +30,7 @@ def featuredImages(userId):
 		data = cur.fetchall()
 	response = {}
 	for row in data:
-		response[row[1]] = row[0]
+		response[row[1].decode('utf-8')] = row[0]
 	for award in awards:
 		if award not in response:
 			response[award] = 0
