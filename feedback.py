@@ -118,6 +118,7 @@ if 'QUERY_STRING' in os.environ:
 		# Load config
 		__dir__ = os.path.dirname(__file__)
 		config = yaml.safe_load(open(os.path.join(__dir__, 'config.yaml')))
+		database = qs['labs'][0]
 		conn = pymysql.connect(db=qs['labs'][0],
 			host=config['DB_HOST'],
 			user=config['DB_USER'],
@@ -126,8 +127,10 @@ if 'QUERY_STRING' in os.environ:
 		)
 	else:
 		try:
+			database = qs['db'][0]
 			conn = db.connect(qs['db'][0])
 		except KeyError:
+			database = 'commonswiki'
 			conn = db.connect('commonswiki')
 else:
 	response = {
@@ -142,6 +145,8 @@ else:
 
 response = {
 	'status': 'ok',
+	'labs': labs,
+	'database': database,
 	'user': user,
 }
 
