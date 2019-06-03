@@ -22,6 +22,8 @@ This script returns various numbers about certain given user, like number of tha
 * Output - JSON
   * Keys are described below
   * status - string - ok or error, depending on successfullness of the request
+  * labs - boolean, indicates if request was made with production (false) or beta (true) database
+  * database - string, database that was queries (like "commonswiki" or "enwiki")
   * user - username of the user we're examining (you can use spaces or underscores, Martin Urbanec and Martin_Urbanec is the same)
   * errorCode - string - when status=="error", this described what actually happened, currently it may only be mustpassparams which means that not all mandatory parameters (see below) were passed to the script. 
   * uniqueUsedImages - number - how many images was used in at least one article
@@ -33,6 +35,8 @@ This script returns various numbers about certain given user, like number of tha
 * Parameters
   * user - mandatory - string - username of user you want to examine (you can use spaces or underscores, Martin Urbanec and Martin_Urbanec is the same)
   * fetch - optional - array; separated by | - values from the output that you want to receive - default value is calculate everything possible
+  * db - optional - string - select other production database to be queried, cannot be used with labs
+  * labs - optional - string - select beta/labs database to be queried, cannot be used with db
 * Example requests
   * Everything about Martin Urbanec: https://tools.wmflabs.org/urbanecmbot/commonsmisc/feedback.py?user=Martin_Urbanec
   * Featured images by Martin Urbanec and how many thanks did he receive: https://tools.wmflabs.org/urbanecmbot/commonsmisc/feedback.py?user=Martin_Urbanec&fetch=featuredImages|thanksReceived
