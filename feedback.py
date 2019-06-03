@@ -6,7 +6,6 @@ import cgi
 import sys
 import json
 from wmflabs import db
-conn = db.connect('commonswiki')
 
 def jsonify(response):
 	return json.dumps(response)
@@ -99,6 +98,10 @@ if 'QUERY_STRING' in os.environ:
 			'imagesEditedBySomeoneElse',
 			'deletedUploads',
 		]
+	try:
+		conn = db.connect(qs['db'][0])
+	except KeyError:
+		conn = db.connect('commonswiki')
 else:
 	response = {
 		'status': 'error',
@@ -107,6 +110,8 @@ else:
 	print("Status: 400 Bad Request\n")
 	print(jsonify(response))
 	sys.exit(0)
+
+
 
 response = {
 	'status': 'ok',
