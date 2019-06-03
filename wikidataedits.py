@@ -39,7 +39,7 @@ with cur:
 result = data[0][0]
 
 response = {
-    'edits': result
+	'edits': result
 }
 
 print(jsonify(response))
