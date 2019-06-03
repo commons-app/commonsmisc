@@ -17,13 +17,16 @@ if 'QUERY_STRING' in os.environ:
 	except:
 		print('nouser')
 		sys.exit(0)
+	try:
+		conn = db.connect(qs['db'][0])
+	except:
+		conn = db.connect('commonswiki')
 else:
 	print('nouser')
 	sys.exit(0)
 
 ##### PROGRAM ####
 
-conn = db.connect('commonswiki')
 cur = conn.cursor()
 with cur:
 	sql = 'select count(*) from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="' + username + '");'
