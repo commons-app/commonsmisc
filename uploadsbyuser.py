@@ -44,7 +44,7 @@ else:
 
 cur = conn.cursor()
 with cur:
-	sql = 'select count(*) from logging_userindex where log_type="upload" and log_user=(select user_id from user where user_name="' + username + '");'
+	sql = 'select count(*) from logging_userindex where log_type="upload" and log_actor=(select actor_id from actor where actor_name="' + username + '");'
 	if labs:
 		sql = sql.replace('_userindex', '')
 	cur.execute(sql)
