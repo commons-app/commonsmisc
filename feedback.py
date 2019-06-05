@@ -25,14 +25,14 @@ def thanksReceived(username):
 		data = cur.fetchall()
 	return data[0][0]
 
-def featuredImages(userId):
+def featuredImages(actorId):
 	awards = ['Featured_pictures_on_Wikimedia_Commons', 'Quality_images']
 	sqlins = []
 	for award in awards:
 		sqlins.append('"' + award + '"')
 	sqlin = ", ".join(sqlins)
 	with conn.cursor() as cur:
-		sql = 'select count(cl_from), cl_to from categorylinks where cl_to in (%s) and cl_type="file" and cl_from in (select log_page from logging_userindex where log_type="upload" and log_user=%d) group by cl_to;' % (sqlin, userId)
+		sql = 'select count(cl_from), cl_to from categorylinks where cl_to in (%s) and cl_type="file" and cl_from in (select log_page from logging_userindex where log_type="upload" and log_actor=%d) group by cl_to;' % (sqlin, actorId)
 		sql = clearSql(sql)
 		cur.execute(sql)
 		data = cur.fetchall()
@@ -44,33 +44,33 @@ def featuredImages(userId):
 			response[award] = 0
 	return response
 
-def articlesUsingImages(userId):
+def articlesUsingImages(actorId):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=%d);' % userId
+		sql = 'select count(*) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_actor=%d);' % actorId
 		sql = clearSql(sql)
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def uniqueUsedImages(userId):
+def uniqueUsedImages(actorId):
 	with conn.cursor() as cur:
-		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_user=%d);' % userId
+		sql = 'select count(distinct gil_to) from globalimagelinks where gil_to in (select log_title from logging_userindex where log_type="upload" and log_actor=%d);' % actorId
 		sql = clearSql(sql)
 		cur.execute(sql)
 		data = cur.fetchall()
 	return data[0][0]
 
-def imagesEditedBySomeoneElse(userId):
+def imagesEditedBySomeoneElse(actorId):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from revision where rev_page in (select log_page from logging_userindex where log_type="upload" and log_user=%d) and rev_user!=%d group by rev_page having count(*)>1' % (userId, userId)
+		sql = 'select count(*) from revision where rev_page in (select log_page from logging_userindex where log_type="upload" and log_actor=%d) and rev_actor!=%d group by rev_page having count(*)>1' % (actorId, actorId)
 		sql = clearSql(sql)
 		cur.execute(sql)
 		data = cur.fetchall()
 	return len(data)
 
-def deletedUploads(username):
+def deletedUploads(actorId):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from filearchive_userindex where fa_user_text="' + username + '";'
+		sql = 'select count(*) from filearchive_userindex where fa_actor="%d";' % actorId
 		sql = clearSql(sql)
 		cur.execute(sql)
 		data = cur.fetchall()
@@ -80,6 +80,12 @@ def getUserId(username):
 	with conn.cursor() as cur:
 		sql = 'select user_id from user where user_name="%s";' % username
 		cur.execute(sql)
+		data = cur.fetchall()
+	return data[0][0]
+
+def getActorId(userId):
+	with conn.cursor() as cur:
+		cur.execute('select actor_id from actor where actor_user=%s', userId)
 		data = cur.fetchall()
 	return data[0][0]
 
@@ -151,19 +157,20 @@ response = {
 }
 
 userid = getUserId(user)
+actorid = getActorId(userid)
 
 if 'thanksReceived' in fetch:
 	response['thanksReceived'] = thanksReceived(user)
 if 'featuredImages' in fetch:
-	response['featuredImages'] = featuredImages(userid)
+	response['featuredImages'] = featuredImages(actorid)
 if 'articlesUsingImages' in fetch:
-	response['articlesUsingImages'] = articlesUsingImages(userid)
+	response['articlesUsingImages'] = articlesUsingImages(actorid)
 if 'uniqueUsedImages' in fetch:
-	response['uniqueUsedImages'] = uniqueUsedImages(userid)
+	response['uniqueUsedImages'] = uniqueUsedImages(actorid)
 if 'imagesEditedBySomeoneElse' in fetch:
-	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(userid)
+	response['imagesEditedBySomeoneElse'] = imagesEditedBySomeoneElse(actorid)
 if 'deletedUploads' in fetch:
-	response['deletedUploads'] = deletedUploads(user)
+	response['deletedUploads'] = deletedUploads(actorid)
 
 print()
 print(jsonify(response))
