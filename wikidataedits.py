@@ -32,7 +32,7 @@ else:
 conn = db.connect('wikidatawiki')
 cur = conn.cursor()
 with cur:
-	sql = 'select count(*) as edit_count from change_tag join revision on rev_id=ct_rev_id where ct_tag_id=155 and rev_user_text="' + username + '";'
+	sql = 'select count(*) as edit_count from change_tag join revision on rev_id=ct_rev_id where ct_tag_id=155 and rev_actor=(select actor_id from actor where actor_name="' + username + '");'
 	cur.execute(sql)
 	data = cur.fetchall()
 
