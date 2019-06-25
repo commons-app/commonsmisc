@@ -19,7 +19,7 @@ def clearSql(sql):
 
 def thanksReceived(username):
 	with conn.cursor() as cur:
-		sql = 'select count(*) from logging_logindex where log_type="thanks" and log_title="%s";' % username.replace(' ', '_')
+		sql = 'select count(*) from logging_logindex where log_type="thanks" and log_title="%s" and log_namespace = 2;' % username.replace(' ', '_')
 		sql = clearSql(sql)
 		cur.execute(sql)
 		data = cur.fetchall()
