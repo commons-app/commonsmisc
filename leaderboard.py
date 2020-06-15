@@ -9,8 +9,13 @@ import yaml
 from datetime import datetime, timedelta
 import pymysql
 
+
+def jsonify(response):
+    return json.dumps(response)
+
+
 # Print header
-print('Content-type: application/json')
+print('Content-type: application/json\n')
 
 # Fetch params
 labs = False
@@ -51,10 +56,6 @@ def get_res(status, user, uploads):
     return response
 
 
-def jsonify(response):
-    return json.dumps(response)
-
-
 def get_sql(duration, username):
     if duration == 'all':
         return """select count(*)
@@ -87,6 +88,10 @@ def get_sql(duration, username):
         log_actor=(select actor_id from actor where actor_name="{username}")
         and
         log_timestamp > "{start_time}" and log_timestamp < "{end_time}";""".format(username=username, start_time=start_time, end_time=end_time)
+    
+    else:
+        print(jsonify({'status': '400'}))
+        sys.exit(0)
 
 
 cur = conn.cursor()
