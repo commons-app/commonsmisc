@@ -90,7 +90,7 @@ def getActorId(userId):
 	return data[0][0]
 
 #Print header
-#print('Content-type: application/json')
+print('Content-type: application/json')
 
 # Fetch params
 labs = False
@@ -172,5 +172,5 @@ if 'imagesEditedBySomeoneElse' in fetch:
 if 'deletedUploads' in fetch:
 	response['deletedUploads'] = deletedUploads(actorid)
 
-#print()
+print()
 print(jsonify(response))
